@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:proj1/model/todotile.dart';
+import 'package:proj1/pages/Helper/basiccard.dart';
 
 class TestToDoPages extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
+  List<Object> _todoHistory = [];
 
   void _addText() {
     FirebaseFirestore.instance
@@ -11,17 +14,21 @@ class TestToDoPages extends StatelessWidget {
     _controller.text = "";
   }
 
-  // Widget _buildList(QuerySnapshot snapshot) {
-  //   return ListView.builder(
-  //       itemCount: snapshot.docs.length,
-  //       itemBuilder: (context, index) {
-  //         final doc = snapshot.docs.map(("TestInput"){
-  //             return ListTile(
-  //               title:Text(TestInput['text'])
-  //               )
-  //         });
-  //       });
-  // }
+  Future _getToDoData() async {
+    var dataToDo =
+        await FirebaseFirestore.instance.collection("TestInput").doc().get();
+  }
+
+  Widget _buildList(QuerySnapshot snapshot) {
+    _todoHistory =
+        List.from(snapshot.docs.map((doc) => todotile.fromSnapshot(doc)));
+
+    return ListView.builder(
+        itemCount: _todoHistory.length,
+        itemBuilder: (context, index) {
+          return basiccard(_todoHistory[index] as todotile);
+        });
+  }
 
   Widget _buildBody(BuildContext context) {
     return Padding(
@@ -46,11 +53,10 @@ class TestToDoPages extends StatelessWidget {
         StreamBuilder<QuerySnapshot>(
             stream:
                 FirebaseFirestore.instance.collection("TestInput").snapshots(),
-            builder: (context, snapshot) {
-              //if (!snapshot.hasData)
-              return LinearProgressIndicator();
-              // else
-              //   return Expanded(child: _buildList(snapshot.data!));
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) return LinearProgressIndicator();
+              return Expanded(child: _buildList(snapshot.data!));
             })
       ]),
     );
