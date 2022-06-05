@@ -8,7 +8,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 class TestToDoPages extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
   List<Object> _todoHistory = [];
@@ -56,6 +55,11 @@ class TestToDoPages extends StatelessWidget {
             )
           ],
         ),
+        //View SQLite Data
+      //  FutureBuilder<List<todotilesql>>(
+      //     builder: ,
+      //     ) 
+        View Firebase Data
         StreamBuilder<QuerySnapshot>(
             stream:
                 FirebaseFirestore.instance.collection("TestInput").snapshots(),
@@ -82,37 +86,32 @@ class todotilesql {
   final String text;
 
   todotilesql({this.id, required this.text});
-  factory todotilesql.fromMap(Map<String, dynamic>json)=>new todotilesql(
-    id: json['id'],
-    text: json['text']
-  );
+  factory todotilesql.fromMap(Map<String, dynamic> json) =>
+      new todotilesql(id: json['id'], text: json['text']);
 
-  Map<String, dynamic>toMap(){
-    return{
-      'id':id,
-      'text':text
-    }
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'text': text};
   }
-
 }
 
-class DatabaseHelper{
+class DatabaseHelper {
   DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = new DatabaseHelper._privateConstructor();
-  static Database?_database;
-  Future <Database> get database async=>_database??=await _initDatabase();
+  static final DatabaseHelper instance =
+      new DatabaseHelper._privateConstructor();
+  static Database? _database;
+  Future<Database> get database async => _database ??= await _initDatabase();
 
-  Future <Database> _initDatabase() async{
+  Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path=join(documentsDirectory.path, 'todolist1.db');
+    String path = join(documentsDirectory.path, 'todolist1.db');
     return await openDatabase(
       path,
-      version:1,
-      onCreate:_onCreate,
+      version: 1,
+      onCreate: _onCreate,
     );
   }
 
-  Future _onCreate(Database db, int version) async{
+  Future _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE todolist(
         id INTEGER PRIMARY KEY,
@@ -121,12 +120,12 @@ class DatabaseHelper{
     ''');
   }
 
-  Future <List<todotilesql>> getToDoList()async{
-      Database db =await instance.database;
-      var todotiles = await db.query('todotiles');
+  Future<List<todotilesql>> getToDo() async {
+    Database db = await instance.database;
+    var todoTileGet = await db.query('groceries', orderBy: 'name');
+    List<todotilesql> tilelist = todoTileGet.isNotEmpty
+        ? todoTileGet.map((c) => todotilesql.fromMap(c)).toList()
+        : [];
+    return tilelist;
   }
-
-
 }
-
-
