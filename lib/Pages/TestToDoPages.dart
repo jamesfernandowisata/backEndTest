@@ -56,10 +56,10 @@ class TestToDoPages extends StatelessWidget {
           ],
         ),
         //View SQLite Data
-      //  FutureBuilder<List<todotilesql>>(
-      //     builder: ,
-      //     ) 
-        View Firebase Data
+        //  FutureBuilder<List<todotilesql>>(
+        //     builder: ,
+        //     )
+        //View Firebase Data
         StreamBuilder<QuerySnapshot>(
             stream:
                 FirebaseFirestore.instance.collection("TestInput").snapshots(),
@@ -111,21 +111,21 @@ class DatabaseHelper {
     );
   }
 
-  Future _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE todolist(
-        id INTEGER PRIMARY KEY,
-        name TEXT
-      )
-    ''');
-  }
+  // Future _onCreate(Database db, int version) async {
+  //   await db.execute('''
+  //     CREATE TABLE todolist(
+  //       id INTEGER PRIMARY KEY,
+  //       name TEXT
+  //     )
+  //   ''');
+  // }
 
-  Future<List<todotilesql>> getToDo() async {
-    Database db = await instance.database;
-    var todoTileGet = await db.query('groceries', orderBy: 'name');
-    List<todotilesql> tilelist = todoTileGet.isNotEmpty
-        ? todoTileGet.map((c) => todotilesql.fromMap(c)).toList()
-        : [];
-    return tilelist;
-  }
+  // Future<List<todotilesql>> getToDo() async {
+  //   Database db = await instance.database;
+  //   var todoTileGet = await db.query('groceries', orderBy: 'name');
+  //   List<todotilesql> tilelist = todoTileGet.isNotEmpty
+  //       ? todoTileGet.map((c) => todotilesql.fromMap(c)).toList()
+  //       : [];
+  //   return tilelist;
+  // }
 }
