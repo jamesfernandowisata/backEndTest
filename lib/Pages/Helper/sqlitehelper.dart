@@ -19,23 +19,41 @@ class sqlitehelper {
 
   _initiateSQLDB() async {
     Directory directory = await getApplicationDocumentsDirectory();
+    print('this is the directory $directory');
     String DBPath = join(directory.path, _sqliteDBName);
+    print('this is the $DBPath');
     return await openDatabase(DBPath,
         version: _sqliteDBVersion, onCreate: _onCreate);
   }
 
-  Future _onCreate(Database db, int version) {
-    db.query('''
+  Future _onCreate(Database db, int version) async {
+    return await db.execute('''
         CREATE TABLE $_sqliteTableName (
           $sqliteColumnId INTEGER PRIMARY KEY,
           $sqliteColumnName TEXT NOT NULL)
       ''');
-    throw '';
   }
 
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    await db.insert(_sqliteTableName, row);
-    throw '';
+    return await db.insert(_sqliteTableName, row);
+  }
+
+  Future<List<Map<String, dynamic>>> queryAll() async {
+    Database db = await instance.database;
+    return await db.query(_sqliteTableName);
+  }
+
+  Future<int> update(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    int id = row[sqliteColumnId];
+    return await db.update(_sqliteTableName, row,
+        where: '$sqliteColumnId=?', whereArgs: [id]);
+  }
+
+  Future delete(int id) async {
+    Database db = await instance.database;
+    return await db
+        .delete(_sqliteTableName, where: '$sqliteColumnId =?', whereArgs: [id]);
   }
 }

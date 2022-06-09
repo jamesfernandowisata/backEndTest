@@ -7,6 +7,7 @@ import 'package:proj1/pages/Helper/basiccard.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:proj1/Pages/Helper/sqlitehelper.dart';
 
 class TestToDoPages extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
@@ -35,6 +36,21 @@ class TestToDoPages extends StatelessWidget {
         });
   }
 
+  void _addTextSql() async {
+    int i = await sqlitehelper.instance
+        .insert({sqlitehelper.sqliteColumnName: _controller.text});
+    print('new data id is $i');
+    _controller.text = "";
+  }
+
+  void _updateTextSql() {}
+  void _deleteTextSql() {}
+  void _queryTextSql() async {
+    List<Map<String, dynamic>> queryRows =
+        await sqlitehelper.instance.queryAll();
+    print(queryRows);
+  }
+
   Widget _buildBody(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -46,13 +62,45 @@ class TestToDoPages extends StatelessWidget {
               controller: _controller,
               decoration: InputDecoration(hintText: "Enter task name"),
             )),
+            // FlatButton(
+            //   child: Text("Add Task", style: TextStyle(color: Colors.white)),
+            //   color: Colors.green,
+            //   onPressed: () {
+            //     _addText();
+            //   },
+            // )
+          ],
+        ),
+        Row(
+          children: [
             FlatButton(
               child: Text("Add Task", style: TextStyle(color: Colors.white)),
               color: Colors.green,
               onPressed: () {
-                _addText();
+                _addTextSql();
               },
-            )
+            ),
+            FlatButton(
+              child: Text("Update Task", style: TextStyle(color: Colors.white)),
+              color: Colors.blue,
+              onPressed: () {
+                _updateTextSql();
+              },
+            ),
+            FlatButton(
+              child: Text("Delete Task", style: TextStyle(color: Colors.white)),
+              color: Colors.red,
+              onPressed: () {
+                _deleteTextSql();
+              },
+            ),
+            FlatButton(
+              child: Text("Query Task", style: TextStyle(color: Colors.white)),
+              color: Colors.purple,
+              onPressed: () {
+                _queryTextSql();
+              },
+            ),
           ],
         ),
         //View SQLite Data
@@ -79,53 +127,4 @@ class TestToDoPages extends StatelessWidget {
       body: _buildBody(context),
     );
   }
-}
-
-class todotilesql {
-  final int? id;
-  final String text;
-
-  todotilesql({this.id, required this.text});
-  factory todotilesql.fromMap(Map<String, dynamic> json) =>
-      new todotilesql(id: json['id'], text: json['text']);
-
-  Map<String, dynamic> toMap() {
-    return {'id': id, 'text': text};
-  }
-}
-
-class DatabaseHelper {
-  DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance =
-      new DatabaseHelper._privateConstructor();
-  static Database? _database;
-  Future<Database> get database async => _database ??= await _initDatabase();
-
-  Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'todolist1.db');
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
-  }
-
-  // Future _onCreate(Database db, int version) async {
-  //   await db.execute('''
-  //     CREATE TABLE todolist(
-  //       id INTEGER PRIMARY KEY,
-  //       name TEXT
-  //     )
-  //   ''');
-  // }
-
-  // Future<List<todotilesql>> getToDo() async {
-  //   Database db = await instance.database;
-  //   var todoTileGet = await db.query('groceries', orderBy: 'name');
-  //   List<todotilesql> tilelist = todoTileGet.isNotEmpty
-  //       ? todoTileGet.map((c) => todotilesql.fromMap(c)).toList()
-  //       : [];
-  //   return tilelist;
-  // }
 }
